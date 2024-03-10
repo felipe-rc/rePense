@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from bins.Materials import Material
+from utils.Materials import Material
 import pygame
 
 @dataclass
@@ -12,5 +12,5 @@ class Bin(pygame.sprite.Sprite):
     surf.fill((255, 255, 255))
 
     def selectBin(self):
-        print('Selecionada!')
+        print(f'Selecionada a lixeira de tipo: {self.material}!')
         self.selected = True
