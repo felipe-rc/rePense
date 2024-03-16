@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 import pygame
+from utils.constants import COLORS
 
 @dataclass
 class Player(pygame.sprite.Sprite):
-    health: int
+    health: int = 20
     surf = pygame.Surface((64, 64))
-    surf.fill((255, 255, 255))
+    surf.fill(COLORS['mix'])
 
 
     def removePoint(self):
