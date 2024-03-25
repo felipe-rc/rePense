@@ -17,6 +17,7 @@ class Bin(pygame.sprite.Sprite):
         self.surf = pygame.Surface((64, 64))
         self.surf.fill(COLORS[self.color])
 
-    def selectBin(self):
+    def selectBin(self, selectedBin):
         print(f'Selecionada a lixeira de tipo: {self.material}!')
         self.selected = True
+        selectedBin = self
