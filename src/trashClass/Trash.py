@@ -35,6 +35,5 @@ class Trash(pygame.sprite.Sprite):
             self.rect.x = self.xPosition
             self.rect.y = self.yPosition
             screen.blit(self.surf, (self.xPosition, self.yPosition))
-            # self.surf.scroll(self.xPosition, self.yPosition)
             return
         player.removePoint()

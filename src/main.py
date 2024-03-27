@@ -4,6 +4,7 @@ from binClass.Bins import Bin
 from utils.Materials import Material
 from playerClass.Player import Player
 from trashClass.Trash import Trash
+from model.model import Model
 from pygame.locals import (
     K_a,
     K_s,
@@ -21,6 +22,8 @@ WIDTH: int = 700
 # Initialize Player
 player: Player = Player()
 
+# Initialize Model
+model: Model = Model()
 
 # Set up the drawing window
 display: Display = Display(WIDTH, HEIGHT)
@@ -28,7 +31,7 @@ screen = display.createScreen()
 TIMEREVENT = pygame.USEREVENT + 1
 pygame.time.set_timer(TIMEREVENT, (10000 - (player.health * 100)))
 
-screen.blit(player.surf, ((WIDTH * 3/4), HEIGHT - 70))
+screen.blit(player.surf, ((WIDTH * 3 / 4), HEIGHT - 70))
 plasticBin: Bin = Bin(Material.PLASTIC, 'red', K_a)
 paperBin: Bin = Bin(Material.PAPER, 'blue', K_s)
 metalBin: Bin = Bin(Material.METAL, 'yellow', K_d)
@@ -38,30 +41,33 @@ trashList: list = list()
 
 # Run until the user asks to quit
 def main():
+    highScore: int = 20
     selectedBin: Bin = plasticBin
     running: bool = True
     createBasicScreen()
     while running:
+        if player.health <= 0:
+            running = False
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
             if event.type == KEYDOWN:
                 selectedBin = processKeyPress[event.key]
             if event.type == MOUSEBUTTONUP:
-                processClick(event, selectedBin)
+                processClick(event, selectedBin, highScore)
             if event.type == TIMEREVENT:
                 trashProcess()
                 material: Material = Material.generateRandomMaterial()
                 trashList.append(Trash(material, screen))
-                print(trashList)
+    savePoints(highScore)
     pygame.quit()
 
 
 def createBasicScreen():
-    screen.blit(plasticBin.surf, ((WIDTH * 1/8), HEIGHT - 70))
-    screen.blit(paperBin.surf, ((WIDTH * 2/8), HEIGHT - 70))
-    screen.blit(metalBin.surf, ((WIDTH * 3/8), HEIGHT - 70))
-    screen.blit(glassBin.surf, ((WIDTH * 4/8), HEIGHT - 70))
+    screen.blit(plasticBin.surf, ((WIDTH * 1 / 8), HEIGHT - 70))
+    screen.blit(paperBin.surf, ((WIDTH * 2 / 8), HEIGHT - 70))
+    screen.blit(metalBin.surf, ((WIDTH * 3 / 8), HEIGHT - 70))
+    screen.blit(glassBin.surf, ((WIDTH * 4 / 8), HEIGHT - 70))
     pygame.display.flip()
 
 
@@ -71,7 +77,7 @@ def trashProcess():
     pygame.display.flip()
 
 
-def processClick(event, selectedBin):
+def processClick(event, selectedBin, highScore):
     for trash in trashList:
         if trash.rect.collidepoint(event.pos):
             if selectedBin.material == trash.material:
@@ -81,9 +87,15 @@ def processClick(event, selectedBin):
                 trashList.remove(trash)
                 pygame.display.flip()
                 player.addPoint()
+                if player.health > highScore:
+                    highScore = player.health
             else:
                 player.removePoint()
     pygame.time.set_timer(TIMEREVENT, 10000 - player.health * 200)
+
+
+def savePoints(highScore):
+    model.savePoints(highScore)
 
 
 processKeyPress: dict = {
