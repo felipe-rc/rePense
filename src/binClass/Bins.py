@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from utils.Materials import Material
-from utils.constants import COLORS
+from utils.constants import BIN_SPRITES
 import pygame
 
 @dataclass
@@ -14,8 +14,7 @@ class Bin(pygame.sprite.Sprite):
         self.material = material
         self.color = color
         self.key = key
-        self.surf = pygame.Surface((64, 64))
-        self.surf.fill(COLORS[self.color])
+        self.surf = pygame.image.load(BIN_SPRITES[self.material]).convert()
 
     def selectBin(self):
         print(f'Selecionada a lixeira de tipo: {self.material}!')
