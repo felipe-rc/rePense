@@ -1,109 +1,82 @@
 import pygame
-from display.Display import Display
-from binClass.Bins import Bin
-from utils.Materials import Material
-from playerClass.Player import Player
-from trashClass.Trash import Trash
-from model.model import Model
-from pygame.locals import (
-    K_a,
-    K_s,
-    K_d,
-    K_f,
-    KEYDOWN,
-    QUIT,
-    MOUSEBUTTONUP
-)
+from utils.constants import WIDTH, HEIGHT
+from utils.Button import Button
+from gameClass.gameClass import Game
 
 pygame.init()
-HEIGHT: int = 700
-WIDTH: int = 700
+res = (WIDTH, HEIGHT)
+screen = pygame.display.set_mode(res)
+pygame.display.set_caption("rePense")
+color = (255, 255, 255)
+color_light = (170, 170, 170)
+color_dark = (100, 100, 100)
+smallfont = pygame.font.SysFont('Corbel', 35)
 
-# Initialize Player
-player: Player = Player()
-
-# Initialize Model
-model: Model = Model()
-
-# Set up the drawing window
-display: Display = Display(WIDTH, HEIGHT)
-screen = display.createScreen()
-TIMEREVENT = pygame.USEREVENT + 1
-pygame.time.set_timer(TIMEREVENT, (10000 - (player.health * 100)))
-
-screen.blit(player.surf, ((WIDTH * 3 / 4), HEIGHT - 70))
-plasticBin: Bin = Bin(Material.PLASTIC, 'red', K_a)
-paperBin: Bin = Bin(Material.PAPER, 'blue', K_s)
-metalBin: Bin = Bin(Material.METAL, 'yellow', K_d)
-glassBin: Bin = Bin(Material.GLASS, 'green', K_f)
-trashList: list = list()
+game = Game(screen)
 
 
-# Run until the user asks to quit
+new_game_surf = pygame.Surface((150, 64))
+new_game_surf.fill(color_dark)
+new_game_text_x_pos = (WIDTH / 2) - 100
+new_game_button_x_pos = (WIDTH / 2) - 100
+new_game_button_y_pos = 250
+
+scores_surf = pygame.Surface((165, 64))
+scores_surf.fill(color_dark)
+scores_text_x_pos = (WIDTH / 2) - 115
+scores_button_x_pos = (WIDTH / 2) - 115
+scores_button_y_pos = 250 + 70
+
+credits_surf = pygame.Surface((120, 64))
+credits_surf.fill(color_dark)
+credits_text_x_pos = (WIDTH / 2) - 70
+credits_button_x_pos = (WIDTH / 2) - 70
+credits_button_y_pos = 250 + (70 * 2)
+
+info_surf = pygame.Surface((180, 64))
+info_surf.fill(color_dark)
+info_text_x_pos = (WIDTH / 2) - 130
+info_button_x_pos = (WIDTH / 2) - 130
+info_button_y_pos = 250 + (70 * 3)
+
+new_game_button = Button(new_game_button_x_pos, new_game_button_y_pos, new_game_surf, 1)
+scores_button = Button(scores_button_x_pos, scores_button_y_pos, scores_surf, 1)
+credits_button = Button(credits_button_x_pos, credits_button_y_pos, credits_surf, 1)
+info_button = Button(info_button_x_pos, info_button_y_pos, info_surf, 1)
+
+
+def draw_text(text_el, font, text_col, x, y):
+    img = font.render(text_el, True, text_col)
+    screen.blit(img, (x, y))
+
+
 def main():
-    highScore: int = 20
-    selectedBin: Bin = plasticBin
-    running: bool = True
-    createBasicScreen()
-    while running:
-        if player.health <= 0:
-            running = False
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                running = False
-            if event.type == KEYDOWN:
-                selectedBin = processKeyPress[event.key]
-            if event.type == MOUSEBUTTONUP:
-                processClick(event, selectedBin, highScore)
-            if event.type == TIMEREVENT:
-                trashProcess()
-                material: Material = Material.generateRandomMaterial()
-                trashList.append(Trash(material, screen))
-    savePoints(highScore)
-    pygame.quit()
+    run = True
+    while run:
+        screen.fill((60, 25, 60))
+        if new_game_button.draw(screen):
+            game.start()
+        draw_text("Novo Jogo", smallfont, color, new_game_text_x_pos, new_game_button_y_pos)
+
+        if scores_button.draw(screen):
+            print("scores")
+        draw_text("Pontuações", smallfont, color, scores_text_x_pos, scores_button_y_pos)
+
+        if credits_button.draw(screen):
+            print("credits")
+        draw_text("Créditos", smallfont, color, credits_text_x_pos, credits_button_y_pos)
+
+        if info_button.draw(screen):
+            print("info")
+
+        draw_text("Informações", smallfont, color, info_text_x_pos, info_button_y_pos)
+
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                run = False
+
+        pygame.display.update()
 
 
-def createBasicScreen():
-    screen.blit(plasticBin.surf, ((WIDTH * 1 / 8), HEIGHT - 70))
-    screen.blit(paperBin.surf, ((WIDTH * 2 / 8), HEIGHT - 70))
-    screen.blit(metalBin.surf, ((WIDTH * 3 / 8), HEIGHT - 70))
-    screen.blit(glassBin.surf, ((WIDTH * 4 / 8), HEIGHT - 70))
-    pygame.display.flip()
-
-
-def trashProcess():
-    for trash in trashList:
-        trash.tick(player, screen)
-    pygame.display.flip()
-
-
-def processClick(event, selectedBin, highScore):
-    for trash in trashList:
-        if trash.rect.collidepoint(event.pos):
-            if selectedBin.material == trash.material:
-                auxSurf = pygame.Surface((32, 32))
-                auxSurf.fill((0, 0, 0, 0))
-                screen.blit(auxSurf, (trash.xPosition, trash.yPosition))
-                trashList.remove(trash)
-                pygame.display.flip()
-                player.addPoint()
-                if player.health > highScore:
-                    highScore = player.health
-            else:
-                player.removePoint()
-    pygame.time.set_timer(TIMEREVENT, 10000 - player.health * 200)
-
-
-def savePoints(highScore):
-    model.savePoints(highScore)
-
-
-processKeyPress: dict = {
-    K_a: plasticBin,
-    K_s: paperBin,
-    K_d: metalBin,
-    K_f: glassBin,
-}
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

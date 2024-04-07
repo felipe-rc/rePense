@@ -4,8 +4,7 @@ from playerClass.Player import Player
 from numpy import random
 import pygame
 
-HEIGHT: int = 700
-WIDTH: int = 350
+from utils.constants import WIDTH, HEIGHT, TRASH_COLORS
 
 
 @dataclass
@@ -17,8 +16,8 @@ class Trash(pygame.sprite.Sprite):
     def __init__(self, material, screen):
         self.surf = pygame.Surface((32, 32))
         self.rect = self.surf.get_rect()
-        self.surf.fill((255, 255, 255))
-        self.xPosition = random.randint(32, WIDTH - 32)
+        self.surf.fill(TRASH_COLORS[material])
+        self.xPosition = random.randint(32, (int(WIDTH / 2) - 32))
         self.rect.x = self.xPosition
         self.rect.y = self.yPosition
         screen.blit(self.surf, (self.xPosition, self.yPosition))
@@ -30,7 +29,7 @@ class Trash(pygame.sprite.Sprite):
             auxSurf = pygame.Surface((32, 32))
             auxSurf.fill((0, 0, 0, 0))
             screen.blit(auxSurf, (self.xPosition, self.yPosition))
-            self.yPosition += 16
+            self.yPosition += 37
             self.rect = self.surf.get_rect()
             self.rect.x = self.xPosition
             self.rect.y = self.yPosition
